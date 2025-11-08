@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className="bg-muted">
+    <html lang="en" suppressHydrationWarning className="dark">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -24,12 +24,12 @@ export default function RootLayout({
           crossOrigin="anonymous"
         />
         <link
-          href="https://fonts.googleapis.com/css2?family=PT+Sans:ital,wght@0,400;0,700;1,400;1,700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap"
           rel="stylesheet"
         />
       </head>
       <body className={cn("font-body antialiased")}>
-        <div className="relative mx-auto flex h-dvh max-w-sm flex-col overflow-hidden border-x bg-background shadow-2xl">
+        <div className="relative mx-auto flex h-dvh max-w-sm flex-col overflow-hidden border-x border-zinc-800 bg-background shadow-2xl">
           {children}
         </div>
         <Toaster />
