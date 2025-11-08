@@ -56,17 +56,17 @@ export function SettingsTab({
   }
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-0 shadow-none">
+      <CardHeader className="p-0">
         <CardTitle>Message Settings</CardTitle>
         <CardDescription>
           Customize the message that will be sent to callers when you are in
           ride mode.
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0 pt-4">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
             <FormField
               control={form.control}
               name="message"
@@ -76,7 +76,7 @@ export function SettingsTab({
                   <FormControl>
                     <Textarea
                       placeholder="e.g., I'm on my bike, I'll call you back soon!"
-                      className="min-h-[100px]"
+                      className="min-h-[120px]"
                       {...field}
                     />
                   </FormControl>
@@ -87,7 +87,7 @@ export function SettingsTab({
                 </FormItem>
               )}
             />
-            <Button type="submit">Save Message</Button>
+            <Button type="submit" className="w-full">Save Message</Button>
           </form>
         </Form>
       </CardContent>

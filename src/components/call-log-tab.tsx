@@ -14,7 +14,6 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-  TableCaption,
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import type { CallLogEntry } from "@/lib/types";
@@ -45,39 +44,39 @@ export function CallLogTab({ callLog }: CallLogTabProps) {
 
   return (
     <Card>
-      <CardHeader>
+      <CardHeader className="p-4">
         <CardTitle>Call Log</CardTitle>
         <CardDescription>
           A history of recent calls screened by Ride AI Assist.
         </CardDescription>
       </CardHeader>
-      <CardContent>
-        <ScrollArea className="h-96 rounded-md border">
+      <CardContent className="p-0">
+        <ScrollArea className="h-[calc(100vh-250px)]">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead>Timestamp</TableHead>
+                <TableHead className="w-[110px]">Timestamp</TableHead>
                 <TableHead>Caller ID</TableHead>
                 <TableHead>Action</TableHead>
-                <TableHead>Reason</TableHead>
+                <TableHead className="hidden sm:table-cell">Reason</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {callLog.length > 0 ? (
                 callLog.map((entry) => (
                   <TableRow key={entry.id}>
-                    <TableCell className="text-muted-foreground whitespace-nowrap">
-                      {entry.timestamp}
+                    <TableCell className="text-muted-foreground text-xs whitespace-nowrap p-2">
+                      {new Date(entry.timestamp).toLocaleTimeString()}
                     </TableCell>
-                    <TableCell className="font-medium">{entry.callerId}</TableCell>
-                    <TableCell>
+                    <TableCell className="font-medium p-2">{entry.callerId}</TableCell>
+                    <TableCell className="p-2">
                       <Badge variant={getBadgeVariant(entry.action)}>
                         {entry.action}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-muted-foreground">
+                    <TableCell className="text-muted-foreground text-xs p-2 hidden sm:table-cell">
                       <div className="flex items-start gap-2">
-                        {entry.wasAiUsed && <Bot className="h-4 w-4 flex-shrink-0 mt-0.5 text-primary" />}
+                        {entry.wasAiUsed && <Bot className="h-3 w-3 flex-shrink-0 mt-0.5 text-primary" />}
                         <span>{entry.reason}</span>
                       </div>
                     </TableCell>
@@ -89,7 +88,7 @@ export function CallLogTab({ callLog }: CallLogTabProps) {
                     colSpan={4}
                     className="h-24 text-center text-muted-foreground"
                   >
-                    No call history yet. Activate ride mode to start screening.
+                    No call history yet.
                   </TableCell>
                 </TableRow>
               )}

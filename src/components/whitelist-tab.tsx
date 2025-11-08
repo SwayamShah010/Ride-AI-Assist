@@ -20,6 +20,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface WhitelistTabProps {
   whitelist: string[];
@@ -69,15 +70,15 @@ export function WhitelistTab({ whitelist, setWhitelist }: WhitelistTabProps) {
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-0 shadow-none">
+      <CardHeader className="p-0">
         <CardTitle>Contact Whitelist</CardTitle>
         <CardDescription>
           Calls from these numbers will always come through, even in ride mode.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
-        <div className="flex w-full max-w-sm items-center space-x-2">
+      <CardContent className="space-y-4 p-0 pt-4">
+        <div className="flex w-full items-center space-x-2">
           <Input
             type="tel"
             placeholder="(555) 555-5555"
@@ -85,23 +86,24 @@ export function WhitelistTab({ whitelist, setWhitelist }: WhitelistTabProps) {
             onChange={(e) => setNewNumber(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
           />
-          <Button onClick={handleAdd}>
-            <UserPlus className="mr-2 h-4 w-4" /> Add
+          <Button onClick={handleAdd} size="icon" className="flex-shrink-0">
+            <UserPlus className="h-4 w-4" />
+            <span className="sr-only">Add Number</span>
           </Button>
         </div>
 
-        <div className="rounded-lg border">
+        <ScrollArea className="h-[calc(100vh-300px)] rounded-md border">
           <Table>
             <TableHeader>
               <TableRow>
                 <TableHead>Phone Number</TableHead>
-                <TableHead className="text-right">Actions</TableHead>
+                <TableHead className="text-right w-[50px]"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {whitelist.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={2} className="text-center text-muted-foreground">
+                  <TableCell colSpan={2} className="text-center text-muted-foreground h-24">
                     Your whitelist is empty.
                   </TableCell>
                 </TableRow>
@@ -115,7 +117,7 @@ export function WhitelistTab({ whitelist, setWhitelist }: WhitelistTabProps) {
                         size="icon"
                         onClick={() => handleRemove(number)}
                       >
-                        <Trash2 className="h-4 w-4" />
+                        <Trash2 className="h-4 w-4 text-destructive" />
                         <span className="sr-only">Remove {number}</span>
                       </Button>
                     </TableCell>
@@ -124,7 +126,7 @@ export function WhitelistTab({ whitelist, setWhitelist }: WhitelistTabProps) {
               )}
             </TableBody>
           </Table>
-        </div>
+        </ScrollArea>
       </CardContent>
     </Card>
   );

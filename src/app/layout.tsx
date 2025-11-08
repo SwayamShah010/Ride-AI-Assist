@@ -15,7 +15,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className="bg-muted">
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link
@@ -29,7 +29,9 @@ export default function RootLayout({
         />
       </head>
       <body className={cn("font-body antialiased")}>
-        {children}
+        <div className="relative mx-auto flex h-dvh max-w-sm flex-col overflow-hidden border-x bg-background shadow-2xl">
+          {children}
+        </div>
         <Toaster />
       </body>
     </html>

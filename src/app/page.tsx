@@ -10,12 +10,25 @@ import {
   PhoneCall,
   Loader2,
 } from "lucide-react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { DashboardTab } from "@/components/dashboard-tab";
 import { SettingsTab } from "@/components/settings-tab";
 import { WhitelistTab } from "@/components/whitelist-tab";
 import { CallLogTab } from "@/components/call-log-tab";
 import type { CallLogEntry } from "@/lib/types";
+import { cn } from "@/lib/utils";
+
+type ActiveTab = "dashboard" | "settings" | "whitelist" | "call-log";
+
+const navItems: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
+  { id: "dashboard", label: "Dashboard", icon: <Gauge className="h-5 w-5" /> },
+  { id: "settings", label: "Settings", icon: <Settings className="h-5 w-5" /> },
+  {
+    id: "whitelist",
+    label: "Whitelist",
+    icon: <Users className="h-5 w-5" />,
+  },
+  { id: "call-log", label: "Call Log", icon: <History className="h-5 w-5" /> },
+];
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
@@ -25,6 +38,7 @@ export default function Home() {
   );
   const [whitelist, setWhitelist] = useState<string[]>([]);
   const [callLog, setCallLog] = useState<CallLogEntry[]>([]);
+  const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
 
   useEffect(() => {
     setIsClient(true);
@@ -75,63 +89,73 @@ export default function Home() {
     );
   }
 
+  const renderContent = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return (
+          <DashboardTab
+            isRiding={isRiding}
+            setIsRiding={setIsRiding}
+            autoReplyMessage={autoReplyMessage}
+            whitelist={whitelist}
+            addCallLogEntry={addCallLogEntry}
+          />
+        );
+      case "settings":
+        return (
+          <SettingsTab
+            autoReplyMessage={autoReplyMessage}
+            setAutoReplyMessage={handleSetAutoReplyMessage}
+          />
+        );
+      case "whitelist":
+        return (
+          <WhitelistTab
+            whitelist={whitelist}
+            setWhitelist={handleSetWhitelist}
+          />
+        );
+      case "call-log":
+        return <CallLogTab callLog={callLog} />;
+      default:
+        return null;
+    }
+  };
+
   return (
-    <div className="container mx-auto min-h-screen max-w-5xl p-4 md:p-8">
-      <header className="mb-8 flex items-center gap-3">
-        <div className="rounded-full bg-primary p-3 text-primary-foreground">
-          <Bike className="h-8 w-8" />
+    <div className="flex h-full flex-col">
+      <header className="p-4">
+        <div className="flex items-center gap-3">
+          <div className="rounded-full bg-primary p-2 text-primary-foreground">
+            <Bike className="h-6 w-6" />
+          </div>
+          <h1 className="font-headline text-2xl font-bold tracking-tight">
+            Ride AI Assist
+          </h1>
         </div>
-        <h1 className="font-headline text-4xl font-bold tracking-tight">
-          Ride AI Assist
-        </h1>
       </header>
 
-      <main>
-        <Tabs defaultValue="dashboard">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4">
-            <TabsTrigger value="dashboard">
-              <Gauge className="mr-2 h-4 w-4" />
-              Dashboard
-            </TabsTrigger>
-            <TabsTrigger value="settings">
-              <Settings className="mr-2 h-4 w-4" />
-              Settings
-            </TabsTrigger>
-            <TabsTrigger value="whitelist">
-              <Users className="mr-2 h-4 w-4" />
-              Whitelist
-            </TabsTrigger>
-            <TabsTrigger value="call-log">
-              <History className="mr-2 h-4 w-4" />
-              Call Log
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="dashboard">
-            <DashboardTab
-              isRiding={isRiding}
-              setIsRiding={setIsRiding}
-              autoReplyMessage={autoReplyMessage}
-              whitelist={whitelist}
-              addCallLogEntry={addCallLogEntry}
-            />
-          </TabsContent>
-          <TabsContent value="settings">
-            <SettingsTab
-              autoReplyMessage={autoReplyMessage}
-              setAutoReplyMessage={handleSetAutoReplyMessage}
-            />
-          </TabsContent>
-          <TabsContent value="whitelist">
-            <WhitelistTab
-              whitelist={whitelist}
-              setWhitelist={handleSetWhitelist}
-            />
-          </TabsContent>
-          <TabsContent value="call-log">
-            <CallLogTab callLog={callLog} />
-          </TabsContent>
-        </Tabs>
-      </main>
+      <main className="flex-1 overflow-y-auto p-4 pt-0">{renderContent()}</main>
+
+      <footer className="sticky bottom-0 border-t bg-background">
+        <nav className="grid grid-cols-4">
+          {navItems.map((item) => (
+            <button
+              key={item.id}
+              onClick={() => setActiveTab(item.id)}
+              className={cn(
+                "flex flex-col items-center justify-center gap-1 p-3 text-xs font-medium transition-colors",
+                activeTab === item.id
+                  ? "text-primary"
+                  : "text-muted-foreground hover:bg-accent"
+              )}
+            >
+              {item.icon}
+              <span>{item.label}</span>
+            </button>
+          ))}
+        </nav>
+      </footer>
     </div>
   );
 }

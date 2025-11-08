@@ -74,6 +74,7 @@ export function DashboardTab({
         clearInterval(intervalRef.current);
       }
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRiding, whitelist, autoReplyMessage]);
 
   const simulateCall = async () => {
@@ -119,16 +120,16 @@ export function DashboardTab({
   };
 
   return (
-    <Card>
-      <CardHeader>
+    <Card className="border-0 shadow-none">
+      <CardHeader className="p-0">
         <CardTitle>Ride Detection</CardTitle>
         <CardDescription>
           Activate ride mode to automatically handle incoming calls.
         </CardDescription>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent className="space-y-4 p-0 pt-4">
         {rideReplyHero && (
-          <div className="relative aspect-[3/1] w-full overflow-hidden rounded-lg">
+          <div className="relative aspect-video w-full overflow-hidden rounded-lg">
             <Image
               src={rideReplyHero.imageUrl}
               alt={rideReplyHero.description}
@@ -141,10 +142,17 @@ export function DashboardTab({
           </div>
         )}
 
-        <div className="flex items-center justify-center space-x-4 rounded-lg border bg-card p-6 shadow-sm">
-          <Label htmlFor="ride-mode" className="text-lg font-medium">
+        <div className="flex items-center justify-between space-x-4 rounded-lg border bg-card p-4 shadow-sm">
+          <Label htmlFor="ride-mode" className="text-base font-medium">
             Activate Ride Mode
           </Label>
+          <div className="flex items-center gap-3">
+          {isRiding && (
+             <div className="relative flex h-3 w-3">
+              <div className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></div>
+              <div className="relative inline-flex h-3 w-3 rounded-full bg-primary"></div>
+            </div>
+          )}
           <Switch
             id="ride-mode"
             checked={isRiding}
@@ -152,12 +160,7 @@ export function DashboardTab({
             className="data-[state=checked]:bg-primary"
             aria-label="Toggle Ride Mode"
           />
-          {isRiding && (
-             <div className="relative flex h-3 w-3">
-              <div className="absolute inline-flex h-full w-full animate-ping rounded-full bg-primary opacity-75"></div>
-              <div className="relative inline-flex h-3 w-3 rounded-full bg-primary"></div>
-            </div>
-          )}
+          </div>
         </div>
 
         {isRiding && (
@@ -165,8 +168,7 @@ export function DashboardTab({
             <PhoneCall className="h-4 w-4" />
             <AlertTitle>Ride Mode is Active</AlertTitle>
             <AlertDescription>
-              Simulating incoming calls and screening them with AI. New call
-              approximately every 8 seconds.
+              Simulating incoming calls and screening them with AI.
             </AlertDescription>
           </Alert>
         )}
@@ -186,7 +188,7 @@ export function DashboardTab({
                   <strong>Caller:</strong> {lastCall.callerId}
                 </p>
                 <p>
-                  <strong>Action Taken:</strong>{" "}
+                  <strong>Action:</strong>{" "}
                   <span
                     className={
                       lastCall.action === "Allowed" || lastCall.action === "Whitelisted"
