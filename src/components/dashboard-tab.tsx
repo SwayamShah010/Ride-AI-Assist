@@ -120,21 +120,12 @@ export function DashboardTab({
       return;
     }
 
-    const userRules = "Block unknown numbers between 10pm and 8am. Emergency contacts should always be allowed.";
-
-    const result = await screenCall({
-      callerId,
-      timeOfDay: getTimeOfDay(),
-      contactPriority: getRandomPriority(),
-      userRules,
-      cannedResponse: autoReplyMessage,
-    });
-    
+    // For any other number, auto-reply without using AI
     const logEntry: Omit<CallLogEntry, "id" | "timestamp"> = {
       callerId,
-      action: result.shouldSendCannedResponse ? "Auto-Replied" : "Allowed",
-      reason: result.reason,
-      wasAiUsed: true,
+      action: "Auto-Replied",
+      reason: "Caller is not in whitelist or emergency contacts.",
+      wasAiUsed: false,
     };
     addCallLogEntry(logEntry);
     setLastCall({ ...logEntry, id: "", timestamp: "" });
@@ -220,8 +211,8 @@ export function DashboardTab({
                 </div>
               ) : (
                 <div className="flex items-center justify-center gap-3 text-lg font-medium">
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>AI Screening in progress...</span>
+                  <Bot className="h-5 w-5" />
+                  <span>Screening call...</span>
                 </div>
               )}
             </div>
