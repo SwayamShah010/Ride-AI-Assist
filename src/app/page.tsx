@@ -17,6 +17,7 @@ import { CallLogTab } from "@/components/call-log-tab";
 import { EmergencyTab } from "@/components/emergency-tab";
 import type { CallLogEntry } from "@/lib/types";
 import { cn } from "@/lib/utils";
+import { SplashScreen } from "@/components/splash-screen";
 
 type ActiveTab = "dashboard" | "settings" | "whitelist" | "emergency" | "call-log";
 
@@ -38,6 +39,7 @@ const navItems: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
 
 export default function Home() {
   const [isClient, setIsClient] = useState(false);
+  const [showSplash, setShowSplash] = useState(true);
   const [isRiding, setIsRiding] = useState(false);
   const [autoReplyMessage, setAutoReplyMessage] = useState(
     "I'm currently riding a bike and will respond later."
@@ -49,6 +51,8 @@ export default function Home() {
 
   useEffect(() => {
     setIsClient(true);
+    const splashTimer = setTimeout(() => setShowSplash(false), 3000);
+
     const storedMessage = localStorage.getItem("rideReply_message");
     if (storedMessage) {
       setAutoReplyMessage(storedMessage);
@@ -65,6 +69,8 @@ export default function Home() {
     if (storedCallLog) {
       setCallLog(JSON.parse(storedCallLog));
     }
+
+    return () => clearTimeout(splashTimer);
   }, []);
 
   const handleSetAutoReplyMessage = (message: string) => {
@@ -103,11 +109,11 @@ export default function Home() {
   };
 
   if (!isClient) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background">
-        <Loader2 className="h-12 w-12 animate-spin text-primary" />
-      </div>
-    );
+    return null; // Render nothing on the server
+  }
+  
+  if (showSplash) {
+    return <SplashScreen />;
   }
 
   const renderContent = () => {
