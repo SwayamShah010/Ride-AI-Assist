@@ -153,12 +153,12 @@ export default function Home() {
 
   return (
     <div className="flex h-full flex-col">
-      <header className="p-4">
-        <div className="flex items-center gap-3">
-          <div className="rounded-full bg-primary p-2 text-primary-foreground">
-            <Bike className="h-6 w-6" />
+      <header className="p-6">
+        <div className="flex items-center gap-4">
+          <div className="rounded-full bg-primary p-3 text-primary-foreground">
+            <Bike className="h-8 w-8" />
           </div>
-          <h1 className="font-headline text-2xl font-bold tracking-tight">
+          <h1 className="font-headline text-3xl font-bold tracking-tight">
             Ride AI Assist
           </h1>
         </div>
