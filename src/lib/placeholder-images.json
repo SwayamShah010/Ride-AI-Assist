@@ -1,3 +1,10 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "ride-reply-hero",
+      "description": "A winding road through a scenic landscape, representing a journey on a bike.",
+      "imageUrl": "https://images.unsplash.com/photo-1547906250-5bdf142c606d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8bW90b3JjeWNsZSUyMHJvYWR8ZW58MHx8fHwxNzYyNTUxNTAyfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "motorcycle road"
+    }
+  ]
 }
