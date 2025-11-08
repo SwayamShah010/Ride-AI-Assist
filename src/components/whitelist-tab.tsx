@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState } from "react";
@@ -27,9 +28,7 @@ interface WhitelistTabProps {
   setWhitelist: (whitelist: string[]) => void;
 }
 
-const phoneRegex = new RegExp(
-  /^(\+\d{1,2}\s?)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/
-);
+const phoneRegex = new RegExp(/^(\+91[\s]?)?\d{10}$/);
 
 export function WhitelistTab({ whitelist, setWhitelist }: WhitelistTabProps) {
   const [newNumber, setNewNumber] = useState("");
@@ -40,7 +39,7 @@ export function WhitelistTab({ whitelist, setWhitelist }: WhitelistTabProps) {
       toast({
         variant: "destructive",
         title: "Invalid Phone Number",
-        description: "Please enter a valid phone number format.",
+        description: "Please enter a valid 10-digit number (e.g., 9876543210 or +91 9876543210).",
       });
       return;
     }
@@ -81,7 +80,7 @@ export function WhitelistTab({ whitelist, setWhitelist }: WhitelistTabProps) {
         <div className="flex w-full items-center space-x-2">
           <Input
             type="tel"
-            placeholder="(555) 555-5555"
+            placeholder="e.g. 9876543210"
             value={newNumber}
             onChange={(e) => setNewNumber(e.target.value)}
             onKeyDown={(e) => e.key === "Enter" && handleAdd()}
