@@ -1,3 +1,4 @@
+
 "use client";
 
 import {
@@ -43,7 +44,7 @@ export function CallLogTab({ callLog }: CallLogTabProps) {
   };
 
   return (
-    <Card>
+    <Card className="border-0 shadow-none">
       <CardHeader className="p-4">
         <CardTitle>Call Log</CardTitle>
         <CardDescription>
@@ -51,14 +52,13 @@ export function CallLogTab({ callLog }: CallLogTabProps) {
         </CardDescription>
       </CardHeader>
       <CardContent className="p-0">
-        <ScrollArea className="h-[calc(100vh-250px)]">
+        <ScrollArea className="h-[calc(100vh-270px)]">
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="w-[110px]">Timestamp</TableHead>
-                <TableHead>Caller ID</TableHead>
-                <TableHead>Action</TableHead>
-                <TableHead className="hidden sm:table-cell">Reason</TableHead>
+                <TableHead className="w-[100px] p-2">Time</TableHead>
+                <TableHead className="p-2">Caller ID</TableHead>
+                <TableHead className="p-2 text-right">Action</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -66,26 +66,20 @@ export function CallLogTab({ callLog }: CallLogTabProps) {
                 callLog.map((entry) => (
                   <TableRow key={entry.id}>
                     <TableCell className="text-muted-foreground text-xs whitespace-nowrap p-2">
-                      {new Date(entry.timestamp).toLocaleTimeString()}
+                      {new Date(entry.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                     </TableCell>
                     <TableCell className="font-medium p-2">{entry.callerId}</TableCell>
-                    <TableCell className="p-2">
+                    <TableCell className="p-2 text-right">
                       <Badge variant={getBadgeVariant(entry.action)}>
                         {entry.action}
                       </Badge>
-                    </TableCell>
-                    <TableCell className="text-muted-foreground text-xs p-2 hidden sm:table-cell">
-                      <div className="flex items-start gap-2">
-                        {entry.wasAiUsed && <Bot className="h-3 w-3 flex-shrink-0 mt-0.5 text-primary" />}
-                        <span>{entry.reason}</span>
-                      </div>
                     </TableCell>
                   </TableRow>
                 ))
               ) : (
                 <TableRow>
                   <TableCell
-                    colSpan={4}
+                    colSpan={3}
                     className="h-24 text-center text-muted-foreground"
                   >
                     No call history yet.

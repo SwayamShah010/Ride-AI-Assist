@@ -1,6 +1,7 @@
+
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import Image from "next/image";
 import {
   Card,
@@ -12,10 +13,11 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { PhoneCall, Loader2, Bot } from "lucide-react";
+import { PhoneCall, Loader2, Bot, PhoneIncoming } from "lucide-react";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import type { CallLogEntry } from "@/lib/types";
 import { screenCall } from "@/app/actions";
+import { Button } from "./ui/button";
 
 interface DashboardTabProps {
   isRiding: boolean;
@@ -56,34 +58,25 @@ export function DashboardTab({
   addCallLogEntry,
 }: DashboardTabProps) {
   const [isScreening, setIsScreening] = useState(false);
+  const [currentCaller, setCurrentCaller] = useState<string | null>(null);
   const [lastCall, setLastCall] = useState<CallLogEntry | null>(null);
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
-    if (isRiding) {
-      intervalRef.current = setInterval(simulateCall, 8000);
-    } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+    if (!isRiding) {
+      setIsScreening(false);
+      setCurrentCaller(null);
       setLastCall(null);
     }
-
-    return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isRiding, whitelist, autoReplyMessage]);
+  }, [isRiding]);
 
   const simulateCall = async () => {
     setIsScreening(true);
     setLastCall(null);
-
     const callerId = generateRandomPhoneNumber();
-    const timeOfDay = getTimeOfDay();
-    const contactPriority = getRandomPriority();
+    setCurrentCaller(callerId);
+
+    // Short delay to show incoming call
+    await new Promise(resolve => setTimeout(resolve, 2000));
 
     if (whitelist.includes(callerId)) {
       const logEntry: Omit<CallLogEntry, "id" | "timestamp"> = {
@@ -92,9 +85,10 @@ export function DashboardTab({
         reason: "Caller is on the whitelist.",
         wasAiUsed: false,
       };
-      setLastCall({ ...logEntry, id: "", timestamp: "" });
       addCallLogEntry(logEntry);
+      setLastCall({ ...logEntry, id: "", timestamp: "" });
       setIsScreening(false);
+      setCurrentCaller(null);
       return;
     }
 
@@ -102,8 +96,8 @@ export function DashboardTab({
 
     const result = await screenCall({
       callerId,
-      timeOfDay,
-      contactPriority,
+      timeOfDay: getTimeOfDay(),
+      contactPriority: getRandomPriority(),
       userRules,
       cannedResponse: autoReplyMessage,
     });
@@ -114,9 +108,10 @@ export function DashboardTab({
       reason: result.reason,
       wasAiUsed: true,
     };
-    setLastCall({ ...logEntry, id: "", timestamp: "" });
     addCallLogEntry(logEntry);
+    setLastCall({ ...logEntry, id: "", timestamp: "" });
     setIsScreening(false);
+    setCurrentCaller(null);
   };
 
   return (
@@ -163,27 +158,45 @@ export function DashboardTab({
           </div>
         </div>
 
-        {isRiding && (
-          <Alert>
-            <PhoneCall className="h-4 w-4" />
-            <AlertTitle>Ride Mode is Active</AlertTitle>
-            <AlertDescription>
-              Simulating incoming calls and screening them with AI.
+        {isRiding && !isScreening && !currentCaller && (
+          <div className="rounded-lg border p-4 text-center">
+             <AlertDescription className="mb-4">
+              Ride Mode is active. Press the button to simulate an incoming call.
             </AlertDescription>
-          </Alert>
+            <Button onClick={simulateCall} disabled={isScreening}>
+              <PhoneCall className="mr-2 h-4 w-4" />
+              Simulate Incoming Call
+            </Button>
+          </div>
         )}
 
-        {(isScreening || lastCall) && (
-          <div className="rounded-lg border p-4">
-            <h3 className="mb-2 font-semibold">Incoming Call Simulator</h3>
-            {isScreening && (
-              <div className="flex items-center gap-2 text-muted-foreground">
-                <Loader2 className="h-4 w-4 animate-spin" />
-                <span>Screening incoming call...</span>
+        {isRiding && (currentCaller || isScreening) && (
+          <div className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-background/90 backdrop-blur-sm">
+            <div className="w-full max-w-sm p-8 text-center">
+              <div className="flex justify-center mb-6">
+                <div className="relative">
+                  <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center">
+                    <PhoneIncoming className="h-12 w-12 text-primary animate-pulse" />
+                  </div>
+                  <div className="absolute inset-0 rounded-full border-4 border-primary/30 animate-ping"></div>
+                </div>
               </div>
-            )}
-            {lastCall && (
-              <div className="space-y-2">
+
+              <p className="text-muted-foreground">Incoming call from...</p>
+              <h2 className="text-3xl font-bold mb-6">{currentCaller}</h2>
+              
+              <div className="flex items-center justify-center gap-3 text-lg font-medium">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                <span>AI Screening in progress...</span>
+              </div>
+            </div>
+          </div>
+        )}
+
+        {lastCall && !isScreening && (
+          <div className="rounded-lg border p-4">
+            <h3 className="mb-2 font-semibold">Last Call Result</h3>
+             <div className="space-y-2">
                 <p>
                   <strong>Caller:</strong> {lastCall.callerId}
                 </p>
@@ -204,10 +217,10 @@ export function DashboardTab({
                   <span>{lastCall.reason}</span>
                 </div>
               </div>
-            )}
           </div>
         )}
       </CardContent>
     </Card>
   );
 }
+
