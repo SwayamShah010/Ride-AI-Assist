@@ -81,6 +81,11 @@ export default function Home() {
     });
   };
 
+  const clearCallLog = () => {
+    setCallLog([]);
+    localStorage.removeItem("rideReply_callLog");
+  };
+
   if (!isClient) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background">
@@ -116,7 +121,7 @@ export default function Home() {
           />
         );
       case "call-log":
-        return <CallLogTab callLog={callLog} />;
+        return <CallLogTab callLog={callLog} clearCallLog={clearCallLog} />;
       default:
         return null;
     }
