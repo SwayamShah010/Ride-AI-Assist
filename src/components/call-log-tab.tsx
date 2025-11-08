@@ -48,7 +48,7 @@ export function CallLogTab({ callLog }: CallLogTabProps) {
       <CardHeader>
         <CardTitle>Call Log</CardTitle>
         <CardDescription>
-          A history of recent calls screened by RideReply.
+          A history of recent calls screened by Ride AI Assist.
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -82,7 +82,7 @@ export default function Home() {
           <Bike className="h-8 w-8" />
         </div>
         <h1 className="font-headline text-4xl font-bold tracking-tight">
-          RideReply
+          Ride AI Assist
         </h1>
       </header>
 
