@@ -13,7 +13,7 @@ import {
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { PhoneCall, Loader2, Bot, PhoneIncoming } from "lucide-react";
+import { PhoneCall, Loader2, Bot, PhoneIncoming, ShieldAlert } from "lucide-react";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import type { CallLogEntry } from "@/lib/types";
 import { screenCall } from "@/app/actions";
@@ -24,6 +24,7 @@ interface DashboardTabProps {
   setIsRiding: (isRiding: boolean) => void;
   autoReplyMessage: string;
   whitelist: string[];
+  emergencyContacts: string[];
   addCallLogEntry: (entry: Omit<CallLogEntry, "id" | "timestamp">) => void;
 }
 
@@ -45,7 +46,7 @@ function generateRandomPhoneNumber() {
   }-${Math.floor(Math.random() * 9000) + 1000}`;
 }
 
-const priorities = ["low", "normal", "high", "emergency"] as const;
+const priorities = ["low", "normal", "high"] as const;
 function getRandomPriority() {
   return priorities[Math.floor(Math.random() * priorities.length)];
 }
@@ -55,28 +56,55 @@ export function DashboardTab({
   setIsRiding,
   autoReplyMessage,
   whitelist,
+  emergencyContacts,
   addCallLogEntry,
 }: DashboardTabProps) {
   const [isScreening, setIsScreening] = useState(false);
   const [currentCaller, setCurrentCaller] = useState<string | null>(null);
   const [lastCall, setLastCall] = useState<CallLogEntry | null>(null);
+  const [isEmergencyCall, setIsEmergencyCall] = useState(false);
 
   useEffect(() => {
     if (!isRiding) {
       setIsScreening(false);
       setCurrentCaller(null);
       setLastCall(null);
+      setIsEmergencyCall(false);
     }
   }, [isRiding]);
 
   const simulateCall = async () => {
     setIsScreening(true);
     setLastCall(null);
-    const callerId = generateRandomPhoneNumber();
+    setIsEmergencyCall(false);
+
+    // 20% chance of emergency call if list is not empty
+    const isEmergency = emergencyContacts.length > 0 && Math.random() < 0.2;
+    const callerId = isEmergency
+      ? emergencyContacts[Math.floor(Math.random() * emergencyContacts.length)]
+      : generateRandomPhoneNumber();
+    
     setCurrentCaller(callerId);
+    if (isEmergency) {
+      setIsEmergencyCall(true);
+    }
 
     // Short delay to show incoming call
-    await new Promise(resolve => setTimeout(resolve, 2000));
+    await new Promise(resolve => setTimeout(resolve, 2500));
+
+    if (isEmergency) {
+       const logEntry: Omit<CallLogEntry, "id" | "timestamp"> = {
+        callerId,
+        action: "Emergency",
+        reason: "Caller is on the emergency list.",
+        wasAiUsed: false,
+      };
+      addCallLogEntry(logEntry);
+      setLastCall({ ...logEntry, id: "", timestamp: "" });
+      setIsScreening(false);
+      setCurrentCaller(null);
+      return;
+    }
 
     if (whitelist.includes(callerId)) {
       const logEntry: Omit<CallLogEntry, "id" | "timestamp"> = {
@@ -175,20 +203,27 @@ export function DashboardTab({
             <div className="w-full max-w-sm p-8 text-center">
               <div className="flex justify-center mb-6">
                 <div className="relative">
-                  <div className="w-24 h-24 rounded-full bg-primary/20 flex items-center justify-center">
-                    <PhoneIncoming className="h-12 w-12 text-primary animate-pulse" />
+                  <div className={`w-24 h-24 rounded-full flex items-center justify-center ${isEmergencyCall ? 'bg-destructive/20' : 'bg-primary/20'}`}>
+                    <PhoneIncoming className={`h-12 w-12 animate-pulse ${isEmergencyCall ? 'text-destructive' : 'text-primary'}`} />
                   </div>
-                  <div className="absolute inset-0 rounded-full border-4 border-primary/30 animate-ping"></div>
+                  <div className={`absolute inset-0 rounded-full border-4 ${isEmergencyCall ? 'border-destructive/30' : 'border-primary/30'} animate-ping`}></div>
                 </div>
               </div>
 
               <p className="text-muted-foreground">Incoming call from...</p>
               <h2 className="text-3xl font-bold mb-6">{currentCaller}</h2>
               
-              <div className="flex items-center justify-center gap-3 text-lg font-medium">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                <span>AI Screening in progress...</span>
-              </div>
+              {isEmergencyCall ? (
+                <div className="flex items-center justify-center gap-3 text-lg font-medium text-destructive">
+                  <ShieldAlert className="h-5 w-5" />
+                  <span>Emergency Contact!</span>
+                </div>
+              ) : (
+                <div className="flex items-center justify-center gap-3 text-lg font-medium">
+                  <Loader2 className="h-5 w-5 animate-spin" />
+                  <span>AI Screening in progress...</span>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -206,6 +241,8 @@ export function DashboardTab({
                     className={
                       lastCall.action === "Allowed" || lastCall.action === "Whitelisted"
                         ? "text-green-600"
+                        : lastCall.action === "Emergency"
+                        ? "text-red-600"
                         : "text-orange-600"
                     }
                   >
@@ -223,4 +260,3 @@ export function DashboardTab({
     </Card>
   );
 }
-

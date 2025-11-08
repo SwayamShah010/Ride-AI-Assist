@@ -7,17 +7,18 @@ import {
   Settings,
   Users,
   History,
-  PhoneCall,
+  ShieldAlert,
   Loader2,
 } from "lucide-react";
 import { DashboardTab } from "@/components/dashboard-tab";
 import { SettingsTab } from "@/components/settings-tab";
 import { WhitelistTab } from "@/components/whitelist-tab";
 import { CallLogTab } from "@/components/call-log-tab";
+import { EmergencyTab } from "@/components/emergency-tab";
 import type { CallLogEntry } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
-type ActiveTab = "dashboard" | "settings" | "whitelist" | "call-log";
+type ActiveTab = "dashboard" | "settings" | "whitelist" | "emergency" | "call-log";
 
 const navItems: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
   { id: "dashboard", label: "Dashboard", icon: <Gauge className="h-5 w-5" /> },
@@ -26,6 +27,11 @@ const navItems: { id: ActiveTab; label: string; icon: React.ReactNode }[] = [
     id: "whitelist",
     label: "Whitelist",
     icon: <Users className="h-5 w-5" />,
+  },
+  {
+    id: "emergency",
+    label: "Emergency",
+    icon: <ShieldAlert className="h-5 w-5" />,
   },
   { id: "call-log", label: "Call Log", icon: <History className="h-5 w-5" /> },
 ];
@@ -37,6 +43,7 @@ export default function Home() {
     "I'm currently riding a bike and will respond later."
   );
   const [whitelist, setWhitelist] = useState<string[]>([]);
+  const [emergencyContacts, setEmergencyContacts] = useState<string[]>([]);
   const [callLog, setCallLog] = useState<CallLogEntry[]>([]);
   const [activeTab, setActiveTab] = useState<ActiveTab>("dashboard");
 
@@ -49,6 +56,10 @@ export default function Home() {
     const storedWhitelist = localStorage.getItem("rideReply_whitelist");
     if (storedWhitelist) {
       setWhitelist(JSON.parse(storedWhitelist));
+    }
+    const storedEmergency = localStorage.getItem("rideReply_emergency");
+    if (storedEmergency) {
+      setEmergencyContacts(JSON.parse(storedEmergency));
     }
     const storedCallLog = localStorage.getItem("rideReply_callLog");
     if (storedCallLog) {
@@ -64,6 +75,11 @@ export default function Home() {
   const handleSetWhitelist = (newWhitelist: string[]) => {
     setWhitelist(newWhitelist);
     localStorage.setItem("rideReply_whitelist", JSON.stringify(newWhitelist));
+  };
+
+  const handleSetEmergencyContacts = (newContacts: string[]) => {
+    setEmergencyContacts(newContacts);
+    localStorage.setItem("rideReply_emergency", JSON.stringify(newContacts));
   };
 
   const addCallLogEntry = (entry: Omit<CallLogEntry, "id" | "timestamp">) => {
@@ -103,6 +119,7 @@ export default function Home() {
             setIsRiding={setIsRiding}
             autoReplyMessage={autoReplyMessage}
             whitelist={whitelist}
+            emergencyContacts={emergencyContacts}
             addCallLogEntry={addCallLogEntry}
           />
         );
@@ -118,6 +135,13 @@ export default function Home() {
           <WhitelistTab
             whitelist={whitelist}
             setWhitelist={handleSetWhitelist}
+          />
+        );
+      case "emergency":
+        return (
+          <EmergencyTab
+            emergencyContacts={emergencyContacts}
+            setEmergencyContacts={handleSetEmergencyContacts}
           />
         );
       case "call-log":
@@ -143,7 +167,7 @@ export default function Home() {
       <main className="flex-1 overflow-y-auto p-4 pt-0">{renderContent()}</main>
 
       <footer className="sticky bottom-0 border-t bg-background">
-        <nav className="grid grid-cols-4">
+        <nav className="grid grid-cols-5">
           {navItems.map((item) => (
             <button
               key={item.id}

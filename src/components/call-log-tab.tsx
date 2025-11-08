@@ -51,6 +51,8 @@ export function CallLogTab({ callLog, clearCallLog }: CallLogTabProps) {
         return "default";
       case "Whitelisted":
         return "outline";
+      case "Emergency":
+        return "destructive";
       case "Error":
         return "destructive";
       default:
